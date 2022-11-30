@@ -137,7 +137,8 @@ homicides_glm_df %>%
   filter(term == "victim_sexMale") %>% 
   mutate(city_state = fct_reorder(city_state, OR)) %>%
   ggplot(aes(x = city_state, y = OR)) +
-  geom_point()  +
+  geom_point(alpha = 0.5) +
+  geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper)) +
   labs(title = "Estimated odds ratios & 95% confidence intervals of solved homicides, by city",
         subtitle = "ORs comparing male vs female homicide victims",
         x = "City (City, State)",
