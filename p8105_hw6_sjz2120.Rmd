@@ -88,8 +88,9 @@ baltimore_df =
 
 # Let's run a GLM on solved vs unsolved homicides in Baltimore, MD, calculate the OR and CI estimates, and save it as an R object `baltimore_glm`
 baltimore_glm =
+  baltimore_df %>%
   glm(solved ~ victim_age + victim_sex + victim_race,
-    data = baltimore_df,
+    data = .,
     family = binomial()) %>%
   broom::tidy() %>%
   janitor::clean_names() %>%
@@ -114,7 +115,7 @@ Now run glm for each of the cities in your dataset, and extract the adjusted odd
 homicides_glm =
   homicides_df %>%
   nest(location = -city_state) %>%
-  mutate(glm_cities = map(.x = location, ~glm(solved ~ victim_age + victim_sex + victim_race, data = baltimore_df, family = binomial())),
+  mutate(glm_cities = map(.x = location, ~glm(solved ~ victim_age + victim_sex + victim_race, data = homicides_df, family = binomial())),
          glm_tidy = map(glm_cities, broom::tidy),
          glm_results = map(glm_tidy, janitor::clean_names)) %>%
   select(city_state, glm_results) %>%
@@ -132,7 +133,10 @@ homicides_glm
 Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
 
 ```{r plotting-homicides}
-
+homicides_glm %>%
+  mutate(city_state = fct_reorder(city_state, OR)) %>%
+  ggplot(aes(x = city_state, y = OR)) +
+  geom_point()
 ```
 
 
