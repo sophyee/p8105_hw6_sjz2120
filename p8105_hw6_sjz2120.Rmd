@@ -59,12 +59,13 @@ For this problem, limit your analysis those for whom victim_race is white or bla
 homicides_df = homicides %>%
   mutate(city_state = paste(city, state, sep = ", "),  # Create `city_state` and `solved` variables
          solved = ifelse(disposition %in% c("Closed by arrest", "Closed without arrest"), TRUE, FALSE)) %>%
-  filter(!(city_state %in% c("Dallas, TX", "Phoenix, AZ", "Kansas City, MO", "Tulsa, AL")))
-
+  filter(!(city_state %in% c("Dallas, TX", "Phoenix, AZ", "Kansas City, MO", "Tulsa, AL")), # Omit cities without data for race, and Tulsa AL
+         victim_race %in% c("White", "Black")) # Limit analyses to those whose `victim_race` is white or Black
+  
 homicides_df
 ```
 
-The cleaned `homicides_df` dataset contains `r nrow(homicides_df)` rows/observations and `r ncol(homicides_df)` columns/variables. Each of the `r nrow(homicides_df)` rows represents a homicide. The `r ncol(homicides_df)` key variables in this dataset include: `r colnames(homicides_df)`:
+The cleaned and limited `homicides_df` dataset contains `r nrow(homicides_df)` rows/observations and `r ncol(homicides_df)` columns/variables. Each of the `r nrow(homicides_df)` rows represents a homicide. The `r ncol(homicides_df)` key variables in this dataset include: `r colnames(homicides_df)`:
 
 * `uid` -- a unique ID for each observation
 * `reported_date` -- the reported date of each homicide (yearmonthday)
