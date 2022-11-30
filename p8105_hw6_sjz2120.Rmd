@@ -34,14 +34,54 @@ Use 5000 bootstrap samples and, for each bootstrap sample, produce estimates of 
 
 
 # Problem 2
-The Washington Post has gathered data on homicides in 50 large U.S. cities and made the data available through a GitHub repository here. You can read their accompanying article here.
+The Washington Post has gathered data on homicides in 50 large U.S. cities and made the data available through a GitHub repository. Let's load in the raw dataset:
 
-Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race. Also omit Tulsa, AL – this is a data entry mistake. For this problem, limit your analysis those for whom victim_race is white or black. Be sure that victim_age is numeric.
+```{r Load-in-homicides-data, message=FALSE}
+wp_homicides_url = "https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"
 
+homicides =
+  read_csv(wp_homicides_url,
+           col_types = c("c", "c", "c", "c", "c", "n", "c", "c", "c", "d", "d", "c")) %>% # Read in the raw csv dataset
+  janitor::clean_names() %>%
+  mutate(victim_age = as.numeric(victim_age),
+         reported_date = as.character(reported_date),
+         reported_date = as.Date(reported_date, "%Y%m%d")) # Change variable types for `reported_date` and `age`
+
+homicides
+```
+
+### Cleaning the `homicides` dataset
+Now let's clean the `homicides` dataset. Below, I've created a `city_state` variable (combining the `city` and `state` variables), and a binary variable `solved` indicating whether the homicide is solved. Additionally, I've omitted the cities of Dallas, TX; Phoenix, AZ; and Kansas City, MO, because they don’t report victim race. I've also omitted Tulsa, AL since it's a data entry mistake.
+
+For this problem, limit your analysis those for whom victim_race is white or black. Be sure that victim_age is numeric.
+
+```{r cleaning-homicides-dataset}
+homicides_df = homicides %>%
+  mutate(city_state = paste(city, state, sep = ", "),  # Create `city_state` and `solved` variables
+         solved = ifelse(disposition %in% c("Closed by arrest", "Closed without arrest"), TRUE, FALSE)) %>%
+  filter(!(city_state %in% c("Dallas, TX", "Phoenix, AZ", "Kansas City, MO", "Tulsa, AL")))
+
+homicides_df
+```
+
+The cleaned `homicides_df` dataset contains `r nrow(homicides_df)` rows/observations and `r ncol(homicides_df)` columns/variables. Each of the `r nrow(homicides_df)` rows represents a homicide. The `r ncol(homicides_df)` key variables in this dataset include: `r colnames(homicides_df)`:
+
+* `uid` -- a unique ID for each observation
+* `reported_date` -- the reported date of each homicide (yearmonthday)
+* `victim_last` and `victim_first` -- the last and first name of each homicide victim
+* Demographic information for each homicide victim, including their race (`victim_race`), age (`victim_age`), sex (`victim_sex`)
+* The location of each homicide incident, including the `city` and `state` as well as the latitude and longitude (`lat` and `lon`)
+* `disposition` -- the status of each homicide case (case closed/open and arrest status)
+* `city_state` -- combines the `city` and `state` variables
+* `solved` -- indicates whether the homicide is solved (`TRUE` if solved, `FALSE` if unsolved)
+
+### Solving Homicides in Baltimore, MD
 For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race as predictors. Save the output of glm as an R object; apply the broom::tidy to this object; and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing male victims to female victims keeping all other variables fixed.
 
+### Solving homicides in each city
 Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing male victims to female victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
+### Plot visualizing solving homicides for each city
 Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
 
 
