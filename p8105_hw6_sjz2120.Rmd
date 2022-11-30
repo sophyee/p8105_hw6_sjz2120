@@ -138,7 +138,8 @@ homicides_glm_df %>%
   mutate(city_state = fct_reorder(city_state, OR)) %>%
   ggplot(aes(x = city_state, y = OR)) +
   geom_point(alpha = 0.5) +
-  geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper)) +
+  geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper),
+                alpha = 0.5) +
   labs(title = "Estimated odds ratios & 95% confidence intervals of solved homicides, by city",
         subtitle = "ORs comparing male vs female homicide victims",
         x = "City (City, State)",
@@ -156,6 +157,11 @@ homicides_glm_df %>%
 In this problem, you will analyze data gathered to understand the effects of several variables on a child’s birthweight. This dataset, available here, consists of roughly 4000 children and includes the following variables:
 
 Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
+
+```{r Load-in-birthweight-data}
+
+```
+
 
 Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
 
