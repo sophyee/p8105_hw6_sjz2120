@@ -42,10 +42,7 @@ wp_homicides_url = "https://raw.githubusercontent.com/washingtonpost/data-homici
 homicides =
   read_csv(wp_homicides_url,
            col_types = c("c", "c", "c", "c", "c", "n", "c", "c", "c", "d", "d", "c")) %>% # Read in the raw csv dataset
-  janitor::clean_names() %>%
-  mutate(victim_age = as.numeric(victim_age),
-         reported_date = as.character(reported_date),
-         reported_date = as.Date(reported_date, "%Y%m%d")) # Change variable types for `reported_date` and `age`
+  janitor::clean_names()
 
 homicides
 ```
@@ -60,17 +57,21 @@ homicides_df =
   homicides %>%
   mutate(city_state = paste(city, state, sep = ", "),  # Create `city_state` and `solved` variables
          solved = ifelse(disposition %in% c("Closed by arrest", "Closed without arrest"), 1, 0)) %>%
-  filter(!(city_state %in% c("Dallas, TX", "Phoenix, AZ", "Kansas City, MO", "Tulsa, AL")), # Omit cities without data for race, and Tulsa AL
-         victim_race %in% c("White", "Black")) # Limit analyses to those whose `victim_race` is white or Black
+  filter(!(city_state %in% c("Dallas, TX",
+                             "Phoenix, AZ",
+                             "Kansas City, MO",
+                             "Tulsa, AL")), # Omit cities
+         victim_race %in% c("White", "Black")) %>% # Limit analyses
+  mutate(victim_age = as.numeric(victim_age),
+         reported_date = as.character(reported_date),
+         reported_date = as.Date(reported_date, "%Y%m%d")) %>% # Change variable types
+  select(victim_race, victim_age, victim_sex, city_state, solved)
   
 homicides_df
 ```
 
 The cleaned and limited `homicides_df` dataset contains `r nrow(homicides_df)` rows/observations and `r ncol(homicides_df)` columns/variables. Each of the `r nrow(homicides_df)` rows represents a homicide. The `r ncol(homicides_df)` key variables in this dataset include: `r colnames(homicides_df)`:
 
-* `uid` -- a unique ID for each observation
-* `reported_date` -- the reported date of each homicide (yearmonthday)
-* `victim_last` and `victim_first` -- the last and first name of each homicide victim
 * Demographic information for each homicide victim, including their race (`victim_race`), age (`victim_age`), sex (`victim_sex`)
 * The location of each homicide incident, including the `city` and `state` as well as the latitude and longitude (`lat` and `lon`)
 * `disposition` -- the status of each homicide case (case closed/open and arrest status)
@@ -112,20 +113,19 @@ baltimore_tbl
 Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing male victims to female victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
 ```{r GLM-for-all-cities}
-homicides_glm =
+homicides_glm_df =
   homicides_df %>%
-  nest(location = -city_state) %>%
-  mutate(glm_cities = map(.x = location, ~glm(solved ~ victim_age + victim_sex + victim_race, data = homicides_df, family = binomial())),
-         glm_tidy = map(glm_cities, broom::tidy),
-         glm_results = map(glm_tidy, janitor::clean_names)) %>%
-  select(city_state, glm_results) %>%
-  unnest(glm_results) %>%
+  nest(data = -city_state) %>%
+  mutate(glm_cities = map(.x = data, ~glm(solved ~ victim_age + victim_sex + victim_race, data = .x, family = binomial())),
+         glm_tidy = map(glm_cities, broom::tidy)) %>%
+  select(city_state, glm_tidy) %>%
+  unnest(glm_tidy) %>%
   mutate(OR = exp(estimate),
-         CI_lower = exp(estimate - 1.96*std_error),
-         CI_upper = exp(estimate + 1.96*std_error)) %>%
+         CI_lower = exp(estimate - 1.96*std.error),
+         CI_upper = exp(estimate + 1.96*std.error)) %>%
   select(city_state, term, OR, CI_lower, CI_upper)
   
-homicides_glm
+homicides_glm_df
 ```
 
 
@@ -133,10 +133,20 @@ homicides_glm
 Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
 
 ```{r plotting-homicides}
-homicides_glm %>%
+homicides_glm_df %>%
+  filter(term == "victim_sexMale") %>% 
   mutate(city_state = fct_reorder(city_state, OR)) %>%
   ggplot(aes(x = city_state, y = OR)) +
-  geom_point()
+  geom_point()  +
+  labs(title = "Estimated odds ratios & 95% confidence intervals of solved homicides, by city",
+        subtitle = "ORs comparing male vs female homicide victims",
+        x = "City (City, State)",
+        y = "Estimated ORs for solved homicides, male vs female (w/95% CI)") +
+  theme(plot.title = element_text(size = 11, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, hjust = 0.5),
+        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 7, hjust = 0.5),
+        legend.position = "none")
 ```
 
 
