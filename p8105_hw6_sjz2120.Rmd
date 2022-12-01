@@ -59,7 +59,7 @@ For this problem, I've limited my analysis to those for whom victim_race is whit
 homicides_df =
   homicides %>%
   mutate(city_state = paste(city, state, sep = ", "),  # Create `city_state` and `solved` variables
-         solved = ifelse(disposition %in% c("Closed by arrest", "Closed without arrest"), 1, 0)) %>%
+         solved = ifelse(disposition == "Closed by arrest", 1, 0)) %>%
   filter(!(city_state %in% c("Dallas, TX",
                              "Phoenix, AZ",
                              "Kansas City, MO",
@@ -156,14 +156,15 @@ homicides_gender_plot =
         y = "Estimated ORs for solved homicides, male vs female (w/95% CI)") +
   theme(plot.title = element_text(size = 11, hjust = 0.5),
         plot.subtitle = element_text(size = 10, hjust = 0.5),
-        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+        axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
         axis.text.y = element_text(size = 7, hjust = 0.5),
         legend.position = "none")
 
 homicides_gender_plot
 ```
 
-[] 
+From the plot above `homicides_gender_plot` above, we see that New York, NY has the lowest adjust OR for solving homicides comparing male victims to female victims keeping all other variables fixed; while Fresno, CA has the highest.
+An OR = 1 would mean that there is no association between victim gender and homicide solve status (i.e. no gender disparity in homicide case solving). However, we see that most of the cities have an OR < 1 for solving homicides comparing male victims to female victims, indicating that []. Alternatively, cities with ORs higher than 1 (including Nashville, TN; Fresno, CA; Stockton, CA; and Albuquerque, NM) have [].
 
 
 # Problem 3
