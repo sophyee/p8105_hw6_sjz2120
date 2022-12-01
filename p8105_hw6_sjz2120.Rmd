@@ -213,7 +213,7 @@ The cleaned `birthweight_df` dataset contains `r nrow(birthweight_df)` rows/obse
 * `mrace`: mother’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other)
 * `parity`: number of live births prior to this pregnancy
 * `pnumlbw`: previous number of low birth weight babies
-* `pnumgsa`: number of prior small for gestational age babies
+* `pnumsga`: number of prior small for gestational age babies
 * `ppbmi`: mother’s pre-pregnancy BMI
 * `ppwt`: mother’s pre-pregnancy weight (pounds)
 * `smoken`: average number of cigarettes smoked per day during pregnancy
@@ -221,11 +221,15 @@ The cleaned `birthweight_df` dataset contains `r nrow(birthweight_df)` rows/obse
 
 
 ### Let's make a regression model for birthweight!
-Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process.
+Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two.
+
+A quick Google search of factors which affect birthweight (including the Wikipedia page [https://en.wikipedia.org/wiki/Birth_weight#Determinants] and the articles cited by the page) suggest that factors such as maternal age at birth (`momage`), number of prior births (`parity`), and smoking during pregnancy (`smoken`) have all been found to be significantly associated with birthweight. Additionally, sociodemographic factors such as race (and specifically increased stress caused by racism) have also been found to be associated with birthweight. That's why for `model_1` below I chose to include the variables `momage`, `parity`, `smoken`, and `mrace` as predictors of birthweight.
+
+I decided against including more potential predictors in `model_1` because of a lack of (non-conflicting) data, and because I wanted to start with a simpler model and adjust as necessary.
 
 ```{r model-1}
 # Model 1: Monthly income, gestational age, mother's age at delivery, number of live births prior to this pregnancy, number of prior small for gestational age babies, mother's pre-pregnancy BMI
-model_1 = lm(bwt ~ gaweeks + momage + parity + ppbmi, data = birthweight_df)
+model_1 = lm(bwt ~ momage + parity + smoken + mrace, data = birthweight_df)
 model_1
 ```
 ### Residual plot for our (first) birthweight model
@@ -266,6 +270,8 @@ model_3 = lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + b
 model_2
 model_3
 ```
+
+
 ### Cross validation of our regression models
 Let's compare model 1 to these models 2 and 3! We'll make this comparison in terms of the cross-validated prediction error, using `crossv_mc` and functions in `purrr` (see code chunk below).
 Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
