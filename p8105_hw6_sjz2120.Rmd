@@ -208,13 +208,29 @@ Propose a regression model for birthweight. This model may be based on a hypothe
 
 ```{r model-1}
 # Model 1: Monthly income, gestational age, mother's age at delivery, number of live births prior to this pregnancy, number of prior small for gestational age babies, mother's pre-pregnancy BMI
-model_1 = lm(bwt ~ fincome + gaweeks + momage + parity + pnumlbw + ppbmi, data = birthweight_df)
+model_1 = lm(bwt ~ gaweeks + momage + parity + ppbmi, data = birthweight_df)
 model_1
 ```
 
 Show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
 ```{r model-1-residual-plot}
+residual_plot =
+  birthweight_df %>%
+  modelr::add_predictions(model_1) %>%
+  modelr::add_residuals(model_1) %>%
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point(alpha = 0.3, size = 0.3) +
+  geom_smooth(se = FALSE, method = "lm") +
+  labs(title = "Model 1 Residuals Plot",
+      x = "Predicted (Fitted Values)",
+      y = "Residuals") +
+  theme(plot.title = element_text(size = 11, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, hjust = 0.5),
+        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 7, hjust = 0.5),
+        legend.position = "none")
 
+residual_plot
 ```
 
 
