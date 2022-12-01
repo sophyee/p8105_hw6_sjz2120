@@ -202,8 +202,19 @@ The cleaned `birthweight_df` dataset contains `r nrow(birthweight_df)` rows/obse
 * `smoken`: average number of cigarettes smoked per day during pregnancy
 * `wtgain`: mother’s weight gain during pregnancy (pounds)
 
+
 ### Let's make a regression model for birthweight!
-Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
+Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process.
+
+```{r model-1}
+# Model 1: []
+
+```
+
+Show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
+```{r model-1-residual-plot}
+
+```
 
 
 ### Comparing our initial regression model to two others
@@ -211,9 +222,15 @@ Compare your model to two others:
 
 One using length at birth and gestational age as predictors (main effects only)
 One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
+```{r other-models}
+# Model 2: Length at birth and gestational age as predictors (main effects only)
+model_2 = lm(bwt ~ blength + gaweeks, data = birthweight_df)
 
+# Model 3: Head circumference, length, sex, and all interactions (including the three-way interaction)
+model_3 = lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + blength*babysex + bhead*blength*babysex, data = birthweight_df)
+```
 
-Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
+Let's compare model 1 to these models 2 and 3! Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
 
 Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
 
