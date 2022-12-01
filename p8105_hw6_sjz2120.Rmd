@@ -152,10 +152,10 @@ homicides_mvf_plot =
 
 
 # Problem 3
-In this problem, you will analyze data gathered to understand the effects of several variables on a child’s birthweight. This dataset, available here, consists of roughly 4000 children and includes the following variables:
+Now let's analyze data gathered to understand the effects of several variables on a child’s birthweight. The dataset `birthweight.csv` is located in the `data` folder in this RProject. It consists of roughly 4000 children and includes many variables related to maternal and newborn status measured during childbirth.
 
 ### Loading and cleaning the `birthweight_df` dataset
-Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
+Below, I've loaded in and cleaned the data for regression analysis, converting numeric to factor where appropriate. The dataset is saved as `birthweight_df`
 
 ```{r Load-and-clean-birthweight-data, message=FALSE}
 # Let's load in the dataset!
@@ -169,14 +169,16 @@ birthweight_df =
 
 birthweight_df
 ```
-Now let's check for missing data in `birthweight_df`! There seems to be 0 missing data for all of the variables in the dataframe:)
+
+Now let's finish cleaning the dataset and check for missing data in `birthweight_df`! There seems to be 0 missing data for all of the variables in the dataframe:)
+
 ```{r birthweight-check-missing}
 # Let's check for missing data:
 map(birthweight_df, ~sum(is.na(.)))
 ```
 
-### Describing the `birthweight_df` dataset
 
+### Describing the `birthweight_df` dataset
 The cleaned `birthweight_df` dataset contains `r nrow(birthweight_df)` rows/observations and `r ncol(birthweight_df)` columns/variables. After a quick check, we also see that the dataset has no missing data (see above). Each of the `r nrow(birthweight_df)` rows represents a birth The `r ncol(birthweight_df)` key variables in this dataset include: `r colnames(birthweight_df)`:
 
 * `babysex`: baby’s sex (male = 1, female = 2)
@@ -209,8 +211,8 @@ Propose a regression model for birthweight. This model may be based on a hypothe
 model_1 = lm(bwt ~ gaweeks + momage + parity + ppbmi, data = birthweight_df)
 model_1
 ```
-
-Show a plot of model residuals against fitted values – use add_predictions and add_residuals from the modelr package in making this plot.
+### Residual plot for our (first) birthweight model
+Below, I've created a plot of model residuals against fitted values for the birthweight regression model previously created. I've used `add_predictions` and `add_residuals` from the `modelr` package to make this plot.
 ```{r model-1-residual-plot}
 residual_plot =
   birthweight_df %>%
