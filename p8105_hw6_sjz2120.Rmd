@@ -207,8 +207,9 @@ The cleaned `birthweight_df` dataset contains `r nrow(birthweight_df)` rows/obse
 Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process.
 
 ```{r model-1}
-# Model 1: []
-
+# Model 1: Monthly income, gestational age, mother's age at delivery, number of live births prior to this pregnancy, number of prior small for gestational age babies, mother's pre-pregnancy BMI
+model_1 = lm(bwt ~ fincome + gaweeks + momage + parity + pnumlbw + ppbmi, data = birthweight_df)
+model_1
 ```
 
 Show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
@@ -228,6 +229,9 @@ model_2 = lm(bwt ~ blength + gaweeks, data = birthweight_df)
 
 # Model 3: Head circumference, length, sex, and all interactions (including the three-way interaction)
 model_3 = lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + blength*babysex + bhead*blength*babysex, data = birthweight_df)
+
+model_2
+model_3
 ```
 
 Let's compare model 1 to these models 2 and 3! Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
