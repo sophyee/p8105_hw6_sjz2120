@@ -81,7 +81,7 @@ The cleaned and limited `homicides_df` dataset contains `r nrow(homicides_df)` r
 
 
 ### Solving Homicides in Baltimore, MD
-For the city of Baltimore, MD, I used the GLM function to fit a logistic regression with resolved vs unresolved homicides (as the outcome) and victim age, sex, and race as predictors. The GLM output has been saved as `baltimore_glm`, and has been tidied. Additionally, I've created columns in `baltimore_glm` for the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing male victims to female victims, keeping all other variables fixed.
+For the city of Baltimore, MD, I used the GLM function to fit a logistic regression with resolved vs unresolved homicides (as the outcome) and victim age, sex, and race as predictors. The GLM output has been saved as `baltimore_glm`, and has been tidied. Additionally, I've created columns in `baltimore_glm` for the estimate and confidence interval of the adjusted odds ratio for solving homicides, keeping all other variables fixed.
 
 ```{r GLM-for-Baltimore}
 # Creating a dataframe with only Baltimore, MD homicides data
@@ -104,6 +104,13 @@ baltimore_glm =
 baltimore_glm
 ```
 
+Now, let's obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing male victims to female victims, keeping all other variables fixed.
+```{r homicides-baltimore-gender}
+baltimore_glm %>%
+  filter(term == "victim_sexMale") %>%
+  select(OR, CI_lower, CI_upper)
+```
+* The adjusted odds ratio for solving homicides comparing male victims to female victims (keeping all other variables fixed) is OR = `r baltimore_glm %>% filter(term == "victim_sexMale") %>% pull(OR)` (95% CI: `r baltimore_glm %>% filter(term == "victim_sexMale") %>% pull(CI_lower)`, `r baltimore_glm %>% filter(term == "victim_sexMale") %>% pull(CI_upper)`)
 
 ### Solving homicides in each city
 Below, I've run a GLM for each of the cities in the `homicides_df` dataset and saved the output as `homicides_glm_df`. Like the previous section, I've additionally extract the adjusted odds ratio (and CI) for solving homicides comparing male victims to female victims.
@@ -235,10 +242,10 @@ residual_plot
 
 
 ### Creating more regression models for birthweight
-Compare your model to two others:
+Let's fit two other linear regression models:
 
-One using length at birth and gestational age as predictors (main effects only)
-One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
+* **Model 2**: Using length at birth and gestational age as predictors (main effects only)
+* **Model 3**: Using head circumference, length, sex, and all interactions (including the three-way interaction) between these
 ```{r other-models}
 # Model 2: Length at birth and gestational age as predictors (main effects only)
 model_2 = lm(bwt ~ blength + gaweeks, data = birthweight_df)
@@ -250,7 +257,7 @@ model_2
 model_3
 ```
 ### Cross validation of our regression models
-Let's compare model 1 to these models 2 and 3! Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
+Let's compare model 1 to these models 2 and 3! We'll make this comparison in terms of the cross-validated prediction error, using `crossv_mc` and functions in `purrr` (see code chunk below).
 Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
 
 ```{r cross-validating-models}
