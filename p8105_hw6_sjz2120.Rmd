@@ -162,9 +162,10 @@ homicides_gender_plot =
 
 homicides_gender_plot
 ```
-
+#### Describing the solved homicides comparing victim sex
 From the plot above `homicides_gender_plot` above, we see that New York, NY has the lowest adjust OR for solving homicides comparing male victims to female victims keeping all other variables fixed; while Fresno, CA has the highest.
-An OR = 1 would mean that there is no association between victim gender and homicide solve status (i.e. no gender disparity in homicide case solving). However, we see that most of the cities have an OR < 1 for solving homicides comparing male victims to female victims, indicating that []. Alternatively, cities with ORs higher than 1 (including Nashville, TN; Fresno, CA; Stockton, CA; and Albuquerque, NM) have [].
+
+An OR = 1 would mean that there is no association between victim sex and homicide solve status (i.e. no disparity in homicide case solving among the sexes). However, we see that most of the cities have an OR < 1 for solving homicides comparing male victims to female victims, indicating that homicide cases involving male victims have lower odds of being solved compared to cases involving female victims. On the other hand, cities with ORs higher than 1 (including Nashville, TN; Fresno, CA; Stockton, CA; and Albuquerque, NM) are cities where homicide cases involving male victims have higher odds of being solved compared to cases involving female victims
 
 
 # Problem 3
