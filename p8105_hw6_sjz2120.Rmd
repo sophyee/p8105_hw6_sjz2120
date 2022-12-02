@@ -225,13 +225,14 @@ Propose a regression model for birthweight. This model may be based on a hypothe
 
 A quick Google search of factors which affect birthweight (including the Wikipedia page [https://en.wikipedia.org/wiki/Birth_weight#Determinants] and the articles cited by the page) suggest that factors such as maternal age at birth (`momage`), number of prior births (`parity`), and smoking during pregnancy (`smoken`) have all been found to be significantly associated with birthweight. Additionally, sociodemographic factors such as race (and specifically increased stress caused by racism) have also been found to be associated with birthweight. That's why for `model_1` below I chose to include the variables `momage`, `parity`, `smoken`, and `mrace` as predictors of birthweight.
 
-I decided against including more potential predictors in `model_1` because of a lack of (non-conflicting) data, and because I wanted to start with a simpler model and adjust as necessary.
+I decided against including more potential predictors in `model_1` because of a lack of (non-conflicting) data, and because I wanted to start with a simpler model and adjust as necessary. I also chose not to include an interaction term between any of the variables, since I wasn't able to find much data suggesting an interaction between any of the chosen predictors in relation to birthweight.
 
 ```{r model-1}
 # Model 1: Monthly income, gestational age, mother's age at delivery, number of live births prior to this pregnancy, number of prior small for gestational age babies, mother's pre-pregnancy BMI
 model_1 = lm(bwt ~ momage + parity + smoken + mrace, data = birthweight_df)
 model_1
 ```
+
 ### Residual plot for our (first) birthweight model
 Below, I've created a plot of model residuals against fitted values for the birthweight regression model previously created. I've used `add_predictions` and `add_residuals` from the `modelr` package to make this plot.
 ```{r model-1-residual-plot}
@@ -253,6 +254,7 @@ residual_plot =
 
 residual_plot
 ```
+There seem to be two more dense clusters, but otherwise the residuals seem to be centered around 0 and spread evenly on either side of the zero line.
 
 
 ### Creating more regression models for birthweight
@@ -276,7 +278,25 @@ model_3
 Let's compare model 1 to these models 2 and 3! We'll make this comparison in terms of the cross-validated prediction error, using `crossv_mc` and functions in `purrr` (see code chunk below).
 Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
 
-```{r cross-validating-models}
+```{r cross-validating-models, warning=FALSE}
+# Initial setup for cross validation
+cv_df =
+  crossv_mc(birthweight_df, 100) %>%
+  mutate(train = map(train, as_tibble),
+         test = map(test, as_tibble))
 
+# Cross validating our 3 models
+cv_df = 
+  cv_df %>%
+  mutate(
+    model_1 = map(train, ~lm(bwt ~ momage + parity + smoken + mrace, data = .x)),
+    model_2 = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+    model_3 = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + blength*babysex + bhead*blength*babysex, data = .x))
+    ) %>%
+  mutate(
+    rmse_model_1 = map2_dbl(model_1, test, ~rmse(model = .x, data = .y)),
+    rmse_model_2 = map2_dbl(model_2, test, ~rmse(model = .x, data = .y)),
+    rmse_model_3 = map2_dbl(model_3, test, ~rmse(model = .x, data = .y))
+    )
 ```
 
