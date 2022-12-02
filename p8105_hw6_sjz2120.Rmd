@@ -39,7 +39,7 @@ Use 5000 bootstrap samples and, for each bootstrap sample, produce estimates of 
 # Problem 2
 The Washington Post has gathered data on homicides in 50 large U.S. cities and made the data available through a GitHub repository. Let's load in the raw dataset:
 
-```{r Load-in-homicides-data, message=FALSE}
+```{r Load-in-homicides-data, warning=FALSE}
 wp_homicides_url = "https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"
 
 homicides =
@@ -55,7 +55,7 @@ Now let's clean the `homicides` dataset. Below, I've created a `city_state` vari
 
 For this problem, I've limited my analysis to those for whom victim_race is white or Black.
 
-```{r cleaning-homicides-dataset}
+```{r cleaning-homicides-dataset, warning=FALSE}
 homicides_df =
   homicides %>%
   mutate(city_state = paste(city, state, sep = ", "),  # Create `city_state` and `solved` variables
@@ -68,7 +68,7 @@ homicides_df =
   mutate(victim_age = as.numeric(victim_age),
          reported_date = as.character(reported_date),
          reported_date = as.Date(reported_date, "%Y%m%d")) %>% # Change variable types
-  select(victim_race, victim_age, victim_sex, city_state, solved)
+  select(victim_race, victim_age, victim_sex, city_state, solved) # Keep only the relevant variables
   
 homicides_df
 ```
@@ -108,7 +108,8 @@ Now, let's obtain the estimate and confidence interval of the adjusted odds rati
 ```{r homicides-baltimore-gender}
 baltimore_glm %>%
   filter(term == "victim_sexMale") %>%
-  select(OR, CI_lower, CI_upper)
+  select(OR, CI_lower, CI_upper) %>%
+  knitr::kable(col.names = c('Odds Ratio', 'CI (lower)', 'CI (upper)'))
 ```
 * The adjusted odds ratio for solving homicides comparing male victims to female victims (keeping all other variables fixed) is OR = `r baltimore_glm %>% filter(term == "victim_sexMale") %>% pull(OR)` (95% CI: `r baltimore_glm %>% filter(term == "victim_sexMale") %>% pull(CI_lower)`, `r baltimore_glm %>% filter(term == "victim_sexMale") %>% pull(CI_upper)`).
 
@@ -133,9 +134,6 @@ homicides_glm_gender_df =
   homicides_glm_df %>%
   filter(term == "victim_sexMale") %>%
   select(city_state, OR, CI_lower, CI_upper)
-
-homicides_glm_df
-homicides_glm_gender_df
 ```
 
 
@@ -162,10 +160,12 @@ homicides_gender_plot =
 
 homicides_gender_plot
 ```
-#### Describing the solved homicides comparing victim sex
-From the plot above `homicides_gender_plot` above, we see that New York, NY has the lowest adjust OR for solving homicides comparing male victims to female victims keeping all other variables fixed; while Fresno, CA has the highest.
 
-An OR = 1 would mean that there is no association between victim sex and homicide solve status (i.e. no disparity in homicide case solving among the sexes). However, we see that most of the cities have an OR < 1 for solving homicides comparing male victims to female victims, indicating that homicide cases involving male victims have lower odds of being solved compared to cases involving female victims. On the other hand, cities with ORs higher than 1 (including Nashville, TN; Fresno, CA; Stockton, CA; and Albuquerque, NM) are cities where homicide cases involving male victims have higher odds of being solved compared to cases involving female victims
+#### Describing the solved homicides comparing victim sex
+
+From the `homicides_gender_plot` above, we see that New York, NY has the lowest adjusted OR for solving homicides comparing male victims to female victims keeping all other variables fixed; while Albuquerque, NM has the highest.
+
+An OR = 1 would mean that there is no association between victim sex and homicide solve status (i.e. no disparity in homicide case solving among the sexes). However, we see that most of the cities have an adjusted OR < 1 for solving homicides comparing male victims to female victims, indicating that homicide cases involving male victims have lower odds of being solved compared to cases involving female victims. On the other hand, cities with ORs higher than 1 (including Nashville, TN; Fresno, CA; Stockton, CA; and Albuquerque, NM) are cities where homicide cases involving male victims have higher odds of being solved compared to cases involving female victims.
 
 
 # Problem 3
@@ -223,9 +223,9 @@ The cleaned `birthweight_df` dataset contains `r nrow(birthweight_df)` rows/obse
 ### Let's make a regression model for birthweight!
 Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two.
 
-A quick Google search of factors which affect birthweight (including the Wikipedia page [https://en.wikipedia.org/wiki/Birth_weight#Determinants] and the articles cited by the page) suggest that factors such as maternal age at birth (`momage`), number of prior births (`parity`), and smoking during pregnancy (`smoken`) have all been found to be significantly associated with birthweight. Additionally, sociodemographic factors such as race (and specifically increased stress caused by racism) have also been found to be associated with birthweight. That's why for `model_1` below I chose to include the variables `momage`, `parity`, `smoken`, and `mrace` as predictors of birthweight.
+A quick Google search of factors which affect birthweight (including the Wikipedia page [https://en.wikipedia.org/wiki/Birth_weight#Determinants] and the articles cited by the page) suggest that factors such as maternal age at birth (`momage`), number of prior births (`parity`), and smoking during pregnancy (`smoken`) have all been found to be significantly associated with birthweight. Additionally, sociodemographic factors such as race (`mrace`) -- and specifically increased stress caused by racism -- have also been found to be associated with birthweight. 
 
-I decided against including more potential predictors in `model_1` because of a lack of (non-conflicting) data, and because I wanted to start with a simpler model and adjust as necessary. I also chose not to include an interaction term between any of the variables, since I wasn't able to find much data suggesting an interaction between any of the chosen predictors in relation to birthweight.
+That's why for `model_1` below I chose to include the variables `momage`, `parity`, `smoken`, and `mrace` as predictors of birthweight. I chose not to include an interaction term between any of the variables, since I wasn't able to find much data suggesting an interaction between any of the chosen predictors in relation to birthweight.
 
 ```{r model-1}
 # Model 1: Monthly income, gestational age, mother's age at delivery, number of live births prior to this pregnancy, number of prior small for gestational age babies, mother's pre-pregnancy BMI
@@ -235,6 +235,7 @@ model_1
 
 ### Residual plot for our (first) birthweight model
 Below, I've created a plot of model residuals against fitted values for the birthweight regression model previously created. I've used `add_predictions` and `add_residuals` from the `modelr` package to make this plot.
+
 ```{r model-1-residual-plot}
 residual_plot =
   birthweight_df %>%
@@ -254,6 +255,7 @@ residual_plot =
 
 residual_plot
 ```
+
 There seem to be two more dense clusters, but otherwise the residuals seem to be centered around 0 and spread evenly on either side of the zero line.
 
 
@@ -319,6 +321,7 @@ compare_models_plot =
 
 compare_models_plot
 ```
+
 *Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.*
 
-^^Thank goodness for this because `model_1` (the model I created based on a purely hypothesized structure for the factors that underly birthweight) has the largeest rmse among all the models, suggesting that it's the worst performing out of all of the linear models in terms of predictive accuracy `r emo::ji(":(")`
+Thank goodness for this because `model_1` (the model I created based on a purely hypothesized structure for the factors that underly birthweight) has the largest rmse among all the models, suggesting that it's the worst performing out of all of the linear models in terms of predictive accuracy 😞
