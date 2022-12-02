@@ -276,7 +276,6 @@ model_3
 
 ### Cross validation of our regression models
 Let's compare model 1 to these models 2 and 3! We'll make this comparison in terms of the cross-validated prediction error, using `crossv_mc` and functions in `purrr` (see code chunk below).
-Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
 
 ```{r cross-validating-models, warning=FALSE}
 # Initial setup for cross validation
@@ -316,12 +315,10 @@ compare_models_plot =
   labs(title = "Comparing Our Models for Birthweight",
       x = "Model",
       y = "rmse") +
-  theme(plot.title = element_text(size = 11, hjust = 0.5),
-        plot.subtitle = element_text(size = 10, hjust = 0.5),
-        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
-        axis.text.y = element_text(size = 7, hjust = 0.5),
-        legend.position = "none")
+  theme(plot.title = element_text(size = 12, hjust = 0.5))
 
 compare_models_plot
 ```
+*Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.*
 
+^^Thank goodness for this because `model_1` (the model I created based on a purely hypothesized structure for the factors that underly birthweight) has the largeest rmse among all the models, suggesting that it's the worst performing out of all of the linear models in terms of predictive accuracy `r emo::ji(":(")`
