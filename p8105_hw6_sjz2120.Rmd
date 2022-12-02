@@ -300,3 +300,28 @@ cv_df =
     )
 ```
 
+Now we can compare the 3 models using a violin plot:
+```{r compare-models-plot}
+compare_models_plot =
+  cv_df %>%
+  select(starts_with("rmse")) %>%
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) +
+  geom_violin() +
+  labs(title = "Comparing Our Models for Birthweight",
+      x = "Model",
+      y = "rmse") +
+  theme(plot.title = element_text(size = 11, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, hjust = 0.5),
+        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 7, hjust = 0.5),
+        legend.position = "none")
+
+compare_models_plot
+```
+
