@@ -65,9 +65,7 @@ homicides_df =
                              "Kansas City, MO",
                              "Tulsa, AL")), # Omit cities
          victim_race %in% c("White", "Black")) %>% # Limit analyses
-  mutate(victim_age = as.numeric(victim_age),
-         reported_date = as.character(reported_date),
-         reported_date = as.Date(reported_date, "%Y%m%d")) %>% # Change variable types
+  mutate(victim_age = as.numeric(victim_age)) %>% # Change variable types
   select(victim_race, victim_age, victim_sex, city_state, solved) # Keep only the relevant variables
   
 homicides_df
@@ -115,7 +113,7 @@ baltimore_glm %>%
 
 
 ### Solving homicides in each city
-Below, I've run a GLM for each of the cities in the `homicides_df` dataset and saved the output as `homicides_glm_df`. I've additionally extract the adjusted odds ratio (and CI) for solving homicides comparing male victims to female victims (keeping all other factors constant) for each city, and have saved this more limited dataframe as `homicides_glm_gender_df`.
+Below, I've run a GLM for each of the cities in the `homicides_df` dataset and saved the output as `homicides_glm_df`. I've additionally extracted the adjusted odds ratio (and CI) for solving homicides comparing male victims to female victims (keeping all other factors constant) for each city, and have saved this more limited dataframe as `homicides_glm_gender_df`.
 
 ```{r GLM-for-all-cities}
 homicides_glm_df =
@@ -234,7 +232,7 @@ model_1
 ```
 
 ### Residual plot for our (first) birthweight model
-Below, I've created a plot of model residuals against fitted values for the birthweight regression model previously created. I've used `add_predictions` and `add_residuals` from the `modelr` package to make this plot.
+Below, I've created a plot of model residuals against fitted values for the birthweight regression model previously created. I used `add_predictions` and `add_residuals` from the `modelr` package to make this plot.
 
 ```{r model-1-residual-plot}
 residual_plot =
